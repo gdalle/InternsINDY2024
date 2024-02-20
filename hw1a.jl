@@ -399,8 +399,13 @@ md"""
 """
 
 # ╔═╡ cf737824-4aa3-409b-a914-be606c9668a0
-function attack(att::Pokemon, def::Philip)
-	return rand(1:def.life) == def.life ? SUPER_EFFECTIVE : NORMAL_EFFECTIVE
+begin
+	function attack(att::Pokemon, def::Philip)
+		return rand(1:def.life) == def.life ? SUPER_EFFECTIVE : NORMAL_EFFECTIVE
+	end
+	function attack(att::Corgi, def::Philip)
+		return rand(1:def.life) == def.life ? SUPER_EFFECTIVE : NORMAL_EFFECTIVE
+	end
 end
 
 # ╔═╡ eb29c4ee-2cd2-4c51-a1c3-954b5745b9a9
@@ -511,7 +516,13 @@ md"""
 """
 
 # ╔═╡ 6daea6c1-6eb4-4117-8e11-63e9913792e3
+begin
+	friends(pok1::Philip, pok2::Pokemon) = true
+	friends(pok1::Pokemon, pok2::Philip) = true
+	friends(pok1::Philip, pok2::Philip) = true
 
+	
+end;
 
 # ╔═╡ c491ca01-5a0b-4f91-825c-67f597aa788a
 hint(md"You might get an error due to an ambiguous method. This means multiple dispatch has failed because there is no single most specific implementation. How do you fix this?")
@@ -571,7 +582,11 @@ md"""
 """
 
 # ╔═╡ b66b0c70-fdd1-4d43-8adf-807f59055f8c
-
+begin
+	function new_grid(pokemon_set; n, m)
+		return [rand(pokemon_set) for i in 1:n, j in 1:m]
+	end
+end
 
 # ╔═╡ e227d7f2-ddb7-415e-9b9e-e0efd8945ca0
 begin
@@ -594,7 +609,40 @@ md"""
 """
 
 # ╔═╡ 52121c38-fe60-4c52-8c43-40970fc8d69c
+function step!(grid) 
+	i = rand(2:size(grid, 1)-1)
+	j = rand(2:size(grid, 2)-1)
+	att = grid[i, j]
 
+	n = rand(1:8)
+	
+	if n == 1
+		x, y = (i-1, j-1)
+	elseif n== 2
+		x, y = (i, j-1)
+	elseif n== 3
+		x, y = (i+1, j-1)
+	elseif n== 4
+		x, y = (i-1, j)
+	elseif n== 5
+		x, y = (i+1, j)
+	elseif n== 6
+		x, y = (i-1, j+1)
+	elseif n== 7
+		x, y = (i, j+1)
+	elseif n== 8
+		x, y = (i+1, j+1)
+	end
+	
+	def = grid[x, y]
+
+	res = attack(att, def)
+
+	if res == SUPER_EFFECTIVE
+		grid[x, y] = grid[i, j]
+	end
+
+end
 
 # ╔═╡ 04de7b1e-ea7c-438d-b16a-8e758bb40a70
 T_test = 10
@@ -615,7 +663,44 @@ md"""
 """
 
 # ╔═╡ 7f97374d-04d9-4241-b166-aa5a6e052c66
+function step_consider_friends!(grid)
+	i = rand(2:size(grid, 1)-1)
+	j = rand(2:size(grid, 2)-1)
+	att = grid[i, j]
 
+	n = rand(1:8)
+	
+	if n == 1
+		x, y = (i-1, j-1)
+	elseif n== 2
+		x, y = (i, j-1)
+	elseif n== 3
+		x, y = (i+1, j-1)
+	elseif n== 4
+		x, y = (i-1, j)
+	elseif n== 5
+		x, y = (i+1, j)
+	elseif n== 6
+		x, y = (i-1, j+1)
+	elseif n== 7
+		x, y = (i, j+1)
+	elseif n== 8
+		x, y = (i+1, j+1)
+	end
+	
+	def = grid[x, y]
+
+	if friends(att, def)
+		return
+	end
+	res = attack(att, def)
+
+	if res == SUPER_EFFECTIVE
+		grid[x, y] = grid[i, j]
+	end
+end
+
+	
 
 # ╔═╡ 2b34aa16-107c-4e17-88bb-6dfc6e2b4881
 begin
@@ -929,15 +1014,6 @@ ImageShow = "4e3cecfd-b093-5904-9786-8bbb286a6a31"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-
-[compat]
-Colors = "~0.12.10"
-FileIO = "~1.16.2"
-ImageIO = "~0.6.7"
-ImageShow = "~0.3.8"
-Plots = "~1.40.1"
-PlutoTeachingTools = "~0.2.14"
-PlutoUI = "~0.7.57"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -946,7 +1022,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.1"
 manifest_format = "2.0"
-project_hash = "61884bd620c4ea2a9a9af659dd38aea1c0596c92"
+project_hash = "a65d336f797a00424a5ab02aec605b5849e19c2a"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1036,9 +1112,9 @@ version = "0.12.10"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "d2c021fbdde94f6cdaa799639adfeeaa17fd67f5"
+git-tree-sha1 = "75bd5b6fc5089df449b5d35fa501c846c9b6549b"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.13.0"
+version = "4.12.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -1208,9 +1284,9 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "ac7b73d562b8f4287c3b67b4c66a5395a19c1ae8"
+git-tree-sha1 = "abbbb9ec3afd783a7cbd82ef01dcd088ea051398"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.2"
+version = "1.10.1"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
@@ -1478,9 +1554,9 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
-git-tree-sha1 = "18144f3e9cbe9b15b070288eef858f71b291ce37"
+git-tree-sha1 = "7d6dd4e9212aebaeed356de34ccf262a3cd415aa"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
-version = "0.3.27"
+version = "0.3.26"
 
     [deps.LogExpFunctions.extensions]
     LogExpFunctionsChainRulesCoreExt = "ChainRulesCore"
@@ -1737,9 +1813,9 @@ version = "0.2.14"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "a6783c887ca59ce7e97ed630b74ca1f10aefb74d"
+git-tree-sha1 = "211cdf570992b0d977fda3745f72772e0d5423f2"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.57"
+version = "0.7.56"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -2016,9 +2092,9 @@ version = "1.1.34+0"
 
 [[deps.XZ_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "ac88fb95ae6447c8dda6a5503f3bafd496ae8632"
+git-tree-sha1 = "522b8414d40c4cbbab8dee346ac3a09f9768f25d"
 uuid = "ffd25f8a-64ca-5728-b0f7-c24cf3aae800"
-version = "5.4.6+0"
+version = "5.4.5+0"
 
 [[deps.Xorg_libICE_jll]]
 deps = ["Libdl", "Pkg"]
