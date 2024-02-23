@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.38
+# v0.19.39
 
 #> [frontmatter]
 #> title = "HW1a - Pokémon"
@@ -772,7 +772,10 @@ md"""
 """
 
 # ╔═╡ 8e96478a-4dd4-4eab-bda3-e19e60adf332
-
+simulation(
+	all_pokemon;
+	consider_friends=false, n=20, m=20, T=100_000
+)
 
 # ╔═╡ bd90221c-c590-4d36-bba4-6b0b2e4f2453
 md"""
